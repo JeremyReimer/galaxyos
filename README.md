@@ -1,5 +1,7 @@
 # GalaxyOS - An experimental LISP environment for macOS
 
+[image](galaxy-os-logo.jpg)
+
 ## Introduction
 
 GalaxyOS is a LISP interpreter written in 64-bit ARM assembly code that will run on any macOS computer

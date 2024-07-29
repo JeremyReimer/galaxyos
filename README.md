@@ -42,7 +42,7 @@ Future versions will run on PC compatibles that have x86 chips.
 
 1. Open a terminal prompt, and navigate to the directory you downloaded GalaxyOS.
 2. Type:
-    ```g```
+    ```./g```
 
 ## Using GalaxyOS
 

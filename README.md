@@ -1,6 +1,6 @@
 # GalaxyOS - An experimental LISP environment for macOS
 
-[image](galaxy-os-logo.jpg)
+![image](galaxy-os-logo.jpg)
 
 ## Introduction
 

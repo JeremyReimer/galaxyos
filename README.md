@@ -52,4 +52,6 @@ Future versions will provide a basic LISP interpreter that will interpret this i
 
 Eventually, a full LISP environment will be provided that will launch on startup.
 
-+
+## Version
+
+Current version: 0.04 July 17, 2024 Prints prompt, allows stdin input, echoes input back

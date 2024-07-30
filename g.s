@@ -64,8 +64,8 @@ _loop1: mov X2, #1                      // we are only printing one byte
         mov X16, #4                     // 4 is SYS_WRITE
         svc 0                           // make system call 
         add X11, X11, #1                // add 1 to address to point to next character
-        ldr w12, [X11]                  // load memory contents at X11 into X12
-        CMP w12, #0                     // check for null (temp debugging), are we at the end of the input string?
+        ldrb w12, [X11]                 // load a byte from memory contents at X11 into X12
+        CMP w12, #10                    // check for end of line char, are we at the end of the input string?
         b.ne _loop1                     // jump to loop if not
         //adrp X1, newline@PAGE           // newline character to print at end of each char
         //add X1, X1, newline@PAGEOFF     // required when using @PAGE format

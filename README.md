@@ -10,8 +10,8 @@ that uses Apple Silicon.
 The purpose of GalaxyOS is to learn how to write an extremely fast LISP environment that can 
 connect to and drive a graphical interface using third party libraries. 
 
-The goal is to create something that is the spiritual successor to the old LISP machines from the 1970s
-and 1980s. These machines ran unique graphical environments that were completely interactive -- the user 
+The goal is to create something that is the spiritual successor to the old LISP machines from the 1980s. 
+These machines ran unique graphical environments that were completely interactive -- the user 
 could control and change anything on the system, including the code to run the interface itself. Because
 they ran on custom CPU hardware, they were eventually supplanted by more standard workstations that ran
 Unix, and eventually by commodity PC clone hardware.

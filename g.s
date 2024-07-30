@@ -65,11 +65,6 @@ _loop1: mov X2, #1                      // we are only printing one byte
         mov X1, X11                     // copy current address into argument register X1
         mov X16, #4                     // 4 is SYS_WRITE
         svc 0                           // make system call 
-        adrp X1, newline@PAGE           // newline character to print at end of each char
-        add X1, X1, newline@PAGEOFF     // required when using @PAGE format
-        mov X2, #1                      // print just one byte
-        mov X16, #4                     // 4 is SYS_WRITE
-        svc 0                           // print the newline
         ldrb w12, [X11]                 // load a byte from memory contents at X11 into X12
         cmp w12, #40                    // is the character a "("?
         b.ne _comp1                     // if not, skip to next check
@@ -82,13 +77,19 @@ _comp2: add X11, X11, #1                // add 1 to address to point to next cha
         cmp w12, #10                    // check for end of line char, are we at the end of the input string?
         b.ne _loop1                     // jump to loop if not
 
-// Display message if parenthesis don't match
+        adrp X1, newline@PAGE           // IF WE'RE DONE, PRINT A NEWLINE
+        add X1, X1, newline@PAGEOFF     // required when using @PAGE format
+        mov X2, #1                      // print just one byte
+        mov X16, #4                     // 4 is SYS_WRITE
+        svc 0                           // print the newline
+
+// Display error message if parenthesis don't match
 
 _par1:  cmp X13, #0                     // Is the parenthesis count zero, aka, do parentheses match?
         b.eq _par2                      // If so, skip past the error message
         adrp X1, parencountmsg@PAGE     // prompt for parenthesis count message
         add X1, X1, parencountmsg@PAGEOFF // as above
-        mov X2, #30                     // length of parenthesis prompt
+        mov X2, #31                     // length of parenthesis prompt
         mov X16, #4                     // SYS_WRITE
         svc 0                           // print it out
 
@@ -106,5 +107,5 @@ _par2:  b _prompt                        // go back to new prompt
         hellomessage:      .ascii  "Initializing GalaxyOS 0.05...\n"
         promptmsg:         .ascii  "\nG) "
         newline:           .ascii  "\n"
-        parencountmsg:     .ascii  "ERROR: Mismatched parentheses."
+        parencountmsg:     .ascii  "ERROR: Mismatched parentheses.\n"
         inputmsg:          .space 1024

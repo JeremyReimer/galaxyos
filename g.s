@@ -1,9 +1,10 @@
-// GalaxyOS 0.04
+// GalaxyOS 0.05
 // By Jeremy Reimer
 //
 // Version info:
 //  0.01 July 2, 2024 Prints welcome message to stdout, that's it
 //  0.04 July 17, 2024 Prints prompt, allows stdin input, echoes input back
+//  0.05 July 30, 2024 Counts parenthesis and prints error if they don't match
 //
 // X0-X2 - parameters to macOS function services
 // X16 - macOS function number
@@ -56,8 +57,9 @@ _input:  mov X0, #0                     // Stdin
 
 // Go through input string character by character and print out
 
-_parse: adrp X11, inputmsg@PAGE          // current address of inputmsg (first character)
+_parse: adrp X11, inputmsg@PAGE         // current address of inputmsg (first character)
         add X11, X11, inputmsg@PAGEOFF
+        mov X13, #0                     // X13 is our parenthesis counting register, starts at zero
 _loop1: mov X2, #1                      // we are only printing one byte
         mov X0, #1                      // Stdout
         mov X1, X11                     // copy current address into argument register X1
@@ -68,15 +70,30 @@ _loop1: mov X2, #1                      // we are only printing one byte
         mov X2, #1                      // print just one byte
         mov X16, #4                     // 4 is SYS_WRITE
         svc 0                           // print the newline
-        add X11, X11, #1                // add 1 to address to point to next character
         ldrb w12, [X11]                 // load a byte from memory contents at X11 into X12
-        CMP w12, #10                    // check for end of line char, are we at the end of the input string?
+        cmp w12, #40                    // is the character a "("?
+        b.ne _comp1                     // if not, skip to next check
+        add X13, X13, #1                // increment parenthesis counter by one
+_comp1: cmp w12, #41                    // is the character a ")"?
+        b.ne _comp2                     // if not, skip to next check
+        sub X13, X13, #1                // decrement parenthesis counter by one
+_comp2: add X11, X11, #1                // add 1 to address to point to next character
+        ldrb w12, [X11]                 // load a byte from memory contents at X11 into X12
+        cmp w12, #10                    // check for end of line char, are we at the end of the input string?
         b.ne _loop1                     // jump to loop if not
 
+// Display message if parenthesis don't match
 
+_par1:  cmp X13, #0                     // Is the parenthesis count zero, aka, do parentheses match?
+        b.eq _par2                      // If so, skip past the error message
+        adrp X1, parencountmsg@PAGE     // prompt for parenthesis count message
+        add X1, X1, parencountmsg@PAGEOFF // as above
+        mov X2, #30                     // length of parenthesis prompt
+        mov X16, #4                     // SYS_WRITE
+        svc 0                           // print it out
 
 // infinite loop test
-        b _prompt                        // go back to new prompt
+_par2:  b _prompt                        // go back to new prompt
 
 // Setup the parameters to exit the program
 // and then call macOS to do it.
@@ -86,7 +103,8 @@ _loop1: mov X2, #1                      // we are only printing one byte
         svc     0            // Call macOS to terminate program
 
 .data
-        hellomessage:      .ascii  "Initializing GalaxyOS 0.04...\n"
+        hellomessage:      .ascii  "Initializing GalaxyOS 0.05...\n"
         promptmsg:         .ascii  "\nG) "
         newline:           .ascii  "\n"
+        parencountmsg:     .ascii  "ERROR: Mismatched parentheses."
         inputmsg:          .space 1024

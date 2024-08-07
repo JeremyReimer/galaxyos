@@ -55,21 +55,29 @@ _input:  mov X0, #0                     // Stdin
 //         mov X16, #4                    // 4 is SYS_WRITE
 //         svc 0
 
-// Go through input string character by character and print out
+// Go through input string character by character, print out, and parse into LISP cells
 
-_parse: adrp X11, inputmsg@PAGE         // current address of inputmsg (first character)
-        add X11, X11, inputmsg@PAGEOFF
+_parse: adrp X11, inputmsg@PAGE         // X11 is the current address of inputmsg (first character)
+        add X11, X11, inputmsg@PAGEOFF  //
         mov X13, #0                     // X13 is our parenthesis counting register, starts at zero
+        adrp X14, lispcells@PAGE        // X14 is our pointer to the current LISP cell address
+        add X14, X14, lispcells@PAGEOFF // 
+        adrp X15, lispcells@PAGE        // X15 is our backup pointer to a previous LISP cell for recursion
+        add X15, X15, lispcells@PAGEOFF // 
+        adrp X19, symbols@PAGE          // X19 is the current pointer to the SYMBOLS list
+        add X19, X19, symbols@PAGEOFF   //
+                                        // W20 is the previous character we looked at
 _loop1: mov X2, #1                      // we are only printing one byte
         mov X0, #1                      // Stdout
         mov X1, X11                     // copy current address into argument register X1
         mov X16, #4                     // 4 is SYS_WRITE
         svc 0                           // make system call 
-        ldrb w12, [X11]                 // load a byte from memory contents at X11 into X12
+        ldrb W12, [X11]                 // load a byte from memory contents at X11 into W12
+        mov W20, W12                    // make a copy of this character in W20 for later
         cmp w12, #40                    // is the character a "("?
         b.ne _comp1                     // if not, skip to next check
         add X13, X13, #1                // increment parenthesis counter by one
-_comp1: cmp w12, #41                    // is the character a ")"?
+_comp1: cmp W12, #41                    // is the character a ")"?
         b.ne _comp2                     // if not, skip to next check
         sub X13, X13, #1                // decrement parenthesis counter by one
 _comp2: add X11, X11, #1                // add 1 to address to point to next character
@@ -93,7 +101,7 @@ _par1:  cmp X13, #0                     // Is the parenthesis count zero, aka, d
         mov X16, #4                     // SYS_WRITE
         svc 0                           // print it out
 
-// infinite loop test
+// infinite loop for now
 _par2:  b _prompt                        // go back to new prompt
 
 // Setup the parameters to exit the program
@@ -109,3 +117,5 @@ _par2:  b _prompt                        // go back to new prompt
         newline:           .ascii  "\n"
         parencountmsg:     .ascii  "ERROR: Mismatched parentheses.\n"
         inputmsg:          .space 1024
+        lispcells:         .space 8192
+        symbols:           .space 8192
